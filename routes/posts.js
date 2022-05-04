@@ -1,5 +1,5 @@
 var express = require('express');
-const knex = require('knex')(require('./knexfile.js')[process.env.NODE_ENV||'development']);
+const knex = require('knex')(require('../knexfile.js')[process.env.NODE_ENV||'development']);
 
 const postRouter = express.Router();
 postRouter.use(express.json());
@@ -29,7 +29,7 @@ postRouter.get('/:id', (req, res) => {
     })
 })
 
-postRouter.get('/:user_id', (req, res) => {
+postRouter.get('/user/:user_id', (req, res) => {
   knex("post")
     .where({user_id: `${req.params.user_id}`})
     .select("*")
@@ -56,7 +56,7 @@ postRouter.post('/', (req, res) => {
 })
 
 postRouter.patch('/:id', (req, res) => {
-  knex("users")
+  knex("post")
     .where({id: `${req.params.id}`})
     .update(req.body)
     .then(() => {

@@ -1,5 +1,5 @@
 var express = require('express');
-const knex = require('knex')(require('./knexfile.js')[process.env.NODE_ENV||'development']);
+const knex = require('knex')(require('../knexfile.js')[process.env.NODE_ENV||'development']);
 
 const userRouter = express.Router();
 userRouter.use(express.json());
