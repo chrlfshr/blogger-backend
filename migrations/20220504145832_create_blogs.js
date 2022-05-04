@@ -9,7 +9,9 @@ exports.up = function(knex) {
     table.foreign('user_id')
          .references("users.id")
     table.string("title", 250)
+    table.string("creation_date", 250)
     table.string("content", 1000)
+    
   })
 };
 
