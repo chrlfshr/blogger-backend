@@ -10,14 +10,24 @@ userRouter.get('/:username', (req, res) => {
 
 })
 
-userRouter.get('/:id', (req, res) => {
 
+userRouter.get('/:id', (req, res) => {
+  knex('users')
+  .where({id: `${req.params.id}`})
+  .select('username')
+  .then(data =>{
+    res.status(200).json(data)
+  })
+  .catch(err =>{
+    console.log(err)
+    res.status(404).send(err)
+  })
 })
 
 userRouter.post('/', (req, res) => {
   knex("users")
-  .select("username")
   .where({username: `${body?.username}`})
+  .select("username")
   .then(data =>{
     if(data.length !== 0){
       res.status(406)
@@ -37,6 +47,28 @@ userRouter.post('/', (req, res) => {
   })
 })
 
-userRouter.patch('/:username', (req, res) =>{
-  
+userRouter.patch('/:id', (req, res) =>{
+  knex("users")
+  .where({id: `${req.params.id}`})
+  .update(req.body)
+  .then(() => {
+    res.status(201).send("user updated successfully")
+  })
+  .catch(err =>{
+    console.log(err)
+    res.status(404).send(err)
+  })
+})
+
+userRouter.delete('/:id', (req, res) =>{
+  knex("users")
+  .where({id: `${req.params.id}`})  .select("*")
+  .delete()
+  .then(() => {
+    res.status(201).send("User deleted successfully")
+  })
+  .catch(err =>{
+    console.log(err)
+    res.status(404).send(err)
+  })
 })
