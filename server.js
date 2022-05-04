@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(cors());
 const PORT = 8080;
 
-app.use('/user', userRouter);
+app.use('/users', userRouter);
 app.use('/posts', postsRouter);
 
 

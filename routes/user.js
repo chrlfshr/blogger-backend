@@ -4,11 +4,21 @@ const knex = require('knex')(require('../knexfile.js')[process.env.NODE_ENV||'de
 const userRouter = express.Router();
 userRouter.use(express.json());
 
-userRouter.get('/:username', (req, res) => {
 
+
+userRouter.get('/username', (req, res) => {
+  knex('users')
+    .select('id', 'username', 'first_name', 'last_name')
+    .then(data =>{
+      res.status(200).json(data)
+    })
+    .catch(err =>{
+      console.log(err)
+      res.status(404).send(err)
+    })
 })
 
-userRouter.get('/:id', (req, res) => {
+userRouter.get('/username/:id', (req, res) => {
   knex('users')
     .where({id: `${req.params.id}`})
     .select('username')
@@ -21,9 +31,21 @@ userRouter.get('/:id', (req, res) => {
     })
 })
 
+userRouter.get('/:username', (req, res) => {
+  knex("users")
+    .where({username: `${req.params.username}`})
+    .select("*")
+    .then(user =>{
+      res.status(200).send(user)
+    })
+    .catch(err =>
+      res.status(404).send(err)
+    );
+})
+
 userRouter.post('/', (req, res) => {
   knex("users")
-    .where({username: `${body?.username}`})
+    .where({username: `${req.body?.username}`})
     .select("username")
     .then(data =>{
       if(data.length !== 0){
