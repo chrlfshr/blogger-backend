@@ -6,7 +6,8 @@ postRouter.use(express.json());
 
 postRouter.get('/', (req, res) => {
   knex("post")
-    .select("*")
+    .join("users", "users.id", '=', 'post.user_id')
+    .select("post.id", "post.title", 'post.creation_date', 'post.content', 'users.first_name', 'users.last_name')
     .then(data =>{
       res.status(200).json(data)
     })
@@ -30,6 +31,7 @@ postRouter.get('/:id', (req, res) => {
 })
 
 postRouter.get('/user/:user_id', (req, res) => {
+  console.log(req.params.user_id)
   knex("post")
     .where({user_id: `${req.params.user_id}`})
     .select("*")

@@ -5,6 +5,28 @@ const userRouter = express.Router();
 userRouter.use(express.json());
 
 
+userRouter.post('/', (req, res) => {
+  knex("users")
+    .where({username: req.body?.username})
+    .select("username")
+    .then(data =>{
+      if(data.length !== 0){
+        res.status(406)
+        res.send("Username Already Exists")
+      } else{
+        knex("users")
+        .insert(req.body)
+        .returning("id")
+        .then(data => {
+          res.status(201).send("Successfully created new user")
+        })
+        .catch(err =>{
+          console.log(err)
+          res.status(404).send(err)
+        })
+      }
+    })
+})
 
 userRouter.get('/username', (req, res) => {
   knex('users')
@@ -20,10 +42,10 @@ userRouter.get('/username', (req, res) => {
 
 userRouter.get('/username/:id', (req, res) => {
   knex('users')
-    .where({id: `${req.params.id}`})
+    .where({id: req.params.id})
     .select('username')
     .then(data =>{
-      res.status(200).json(data)
+      res.status(200).json(data[0])
     })
     .catch(err =>{
       console.log(err)
@@ -31,12 +53,18 @@ userRouter.get('/username/:id', (req, res) => {
     })
 })
 
-userRouter.get('/:username', (req, res) => {
+userRouter.post('/:username', (req, res) => {
+  console.log(req.body)
   knex("users")
-    .where({username: `${req.params.username}`})
-    .select("*")
+    .where({username: req.body?.username, password: req.body?.password})
+    .select('id', 'username', 'first_name', 'last_name')
     .then(user =>{
-      res.status(200).send(user)
+      if(user.length !== 1){
+        res.status(401).json({message: "failed to sign in"})
+      }else{
+        res.status(200).json(user[0])
+      }
+      
     })
     .catch(err =>
       res.status(404).send(err)
@@ -45,7 +73,7 @@ userRouter.get('/:username', (req, res) => {
 
 userRouter.post('/', (req, res) => {
   knex("users")
-    .where({username: `${req.body?.username}`})
+    .where({username: req.body?.username})
     .select("username")
     .then(data =>{
       if(data.length !== 0){
@@ -68,7 +96,7 @@ userRouter.post('/', (req, res) => {
 
 userRouter.patch('/:id', (req, res) =>{
   knex("users")
-    .where({id: `${req.params.id}`})
+    .where({id: req.params.id})
     .update(req.body)
     .then(() => {
       res.status(201).send("user updated successfully")
@@ -81,7 +109,7 @@ userRouter.patch('/:id', (req, res) =>{
 
 userRouter.delete('/:id', (req, res) =>{
   knex("users")
-    .where({id: `${req.params.id}`})  .select("*")
+    .where({id: req.params.id})  .select("*")
     .delete()
     .then(() => {
       res.status(201).send("User deleted successfully")
