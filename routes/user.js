@@ -8,29 +8,45 @@ const saltRounds = 11
 const userRouter = express.Router();
 userRouter.use(express.json());
 
+//user creation validation
+const validateNewUser = (req, res, next) => {
+  if(req.body?.password?.length < 8){
+    res.status(400).json({error : "Password does not meet requirements"})
+  }else if(req.body?.username?.length < 3){
+    res.status(400).json({error : "Username does not meet requirements"})
+  }else if(req.body?.first_name?.length < 1){
+    res.status(400).json({error : "First name can not be empty"})
+  }else if(req.body?.last_name?.length < 1){
+    res.status(400).json({error : "Last name can not be empty"})
+  }
+  else{
+    next();
+  }
+}
+
+
 //create user route
-userRouter.post('/', (req, res) => {
+userRouter.post('/', validateNewUser, (req, res) => {
   knex("users")
     .where({username: req.body?.username})
     .select("username")
     .then(data =>{
       if(data.length !== 0){
-        res.status(400)
-        res.send("Username Already Exists")
+        res.status(400).json({error : "Username Already Exists"})
       } else{
         let user = {...req.body}
-        bcrypt.hash(user.password, saltRounds)
+        bcrypt.hash(user.password, saltRounds)//salt and hash the password
         .then(hash =>{
           user.password = hash
           knex("users")
             .insert(user)
             .returning("id")
             .then(data => {
-              res.status(201).send("Successfully created new user")
+              res.status(201).json({message: "Successfully created new user"})
             })
             .catch(err =>{
               console.log(err)
-              res.status(404).send(err)
+              res.status(404).json({error: err})
             })
         })
         
@@ -67,39 +83,13 @@ userRouter.post('/login', async (req, res) => {
           }
         })
         .catch(err =>
-          res.status(404).send(err)
+          res.status(404).json({error: err})
         );
       }
     })
     .catch(err =>
-      res.status(404).send(err)
+      res.status(404).json({error: err})
     );
 })
-
-// userRouter.patch('/:id', (req, res) =>{
-//   knex("users")
-//     .where({id: req.params.id})
-//     .update(req.body)
-//     .then(() => {
-//       res.status(201).send("user updated successfully")
-//     })
-//     .catch(err =>{
-//       console.log(err)
-//       res.status(404).send(err)
-//     })
-// })
-
-// userRouter.delete('/:id', (req, res) =>{
-//   knex("users")
-//     .where({id: req.params.id})  .select("*")
-//     .delete()
-//     .then(() => {
-//       res.status(201).send("User deleted successfully")
-//     })
-//     .catch(err =>{
-//       console.log(err)
-//       res.status(404).send(err)
-//     })
-// })
 
 module.exports = userRouter;
