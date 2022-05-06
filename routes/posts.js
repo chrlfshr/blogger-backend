@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const postRouter = express.Router();
 postRouter.use(express.json());
 
+//verify authentication token
 const verifyToken = (req, res, next) => {
   const token = req.headers.authorization
   try {
@@ -16,7 +17,7 @@ const verifyToken = (req, res, next) => {
   }
 }
 
-
+//get all posts with author name
 postRouter.get('/', (req, res) => {
   knex("post")
     .join("users", "users.id", '=', 'post.user_id')
@@ -30,6 +31,7 @@ postRouter.get('/', (req, res) => {
     })
 })
 
+//get posts for a specific user account
 postRouter.get('/user', verifyToken, (req, res) => {
     knex("post")
       .where({user_id: `${req.user_id}`})
@@ -44,6 +46,7 @@ postRouter.get('/user', verifyToken, (req, res) => {
       })
 })
 
+//create a new post with the user_id based on the authentication token
 postRouter.post('/', verifyToken, (req, res) => {
   knex("post")
     .insert({...req.body, user_id: req.user_id})
@@ -57,12 +60,17 @@ postRouter.post('/', verifyToken, (req, res) => {
     })
 })
 
+//update a post only if the authentication token matches the user_id
 postRouter.patch('/', verifyToken, (req, res) => {
   knex("post")
   .where({id: `${req.body?.id}`, user_id: `${req.user_id}`})
   .update(req.body)
-  .then(() => {
-    res.status(201).json({Message :"Post updated successfully"})
+  .then((data) => {
+    if(data === 0){
+      res.status(403).json({error :"Could not Update Post"})
+    }else{
+      res.status(201).json({message :"Post updated successfully"})
+    }
   })
   .catch(err =>{
     console.log(err)
@@ -71,6 +79,7 @@ postRouter.patch('/', verifyToken, (req, res) => {
   
 })
 
+//delete a post only if the authentication token matches the user_id
 postRouter.delete('/', verifyToken, (req, res) => {
   knex("post")
     .where({id: `${req.body?.id} `, user_id: `${req.user_id}`})
@@ -78,11 +87,10 @@ postRouter.delete('/', verifyToken, (req, res) => {
     .delete()
     .then((data) => {
       if(data.length === 0){
-        res.status(403).json({Error :"Could not Delete Post"})
+        res.status(403).json({error :"Could not Delete Post"})
       }else{
-        res.status(201).json({Message :"Post deleted successfully"})
+        res.status(201).json({message :"Post deleted successfully"})
       }
-      
     })
     .catch(err =>{
       console.log(err)
