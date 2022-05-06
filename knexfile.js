@@ -1,5 +1,5 @@
 // Update with your config settings.
-
+require('dotenv').config();
 /**
  * @type { Object.<string, import("knex").Knex.Config> }
  */
@@ -18,9 +18,12 @@ module.exports = {
   staging: {
     client: 'postgresql',
     connection: {
-      database: 'my_db',
-      user:     'username',
-      password: 'password'
+      host: 'ec2-18-210-64-223.compute-1.amazonaws.com',
+      database: 'd2l1s5aas9m90e',
+      user:     'esasstmdyexcuk',
+      port: 5432,
+      password: process.env.HEROKU_PASS,
+      ssl: { rejectUnauthorized: false }
     },
     pool: {
       min: 2,
@@ -34,9 +37,12 @@ module.exports = {
   production: {
     client: 'postgresql',
     connection: {
-      database: 'my_db',
-      user:     'username',
-      password: 'password'
+      host: 'ec2-18-210-64-223.compute-1.amazonaws.com',
+      database: 'd2l1s5aas9m90e',
+      user:     'esasstmdyexcuk',
+      port: 5432,
+      password: process.env.HEROKU_PASS,
+      ssl: { rejectUnauthorized: false }
     },
     pool: {
       min: 2,
