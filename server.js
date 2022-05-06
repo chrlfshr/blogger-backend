@@ -7,7 +7,7 @@ const postsRouter = require("./routes/posts")
 const app = express();
 app.use(express.json());
 app.use(cors());
-const PORT = 8080;
+const port = process.env.PORT || 8080;
 
 app.use('/users', userRouter);
 app.use('/posts', postsRouter);
@@ -17,6 +17,6 @@ app.get("/", (req, res) =>{
   res.status(200).send("Server running")
 })
 
-app.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`)
+app.listen(port, () => {
+  console.log(`Server is listening on port ${port}`)
 })
